@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实用工具合集 | 作者 CKI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --primary-dark: #3730a3;
+            --secondary: #8b5cf6;
+            --light: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--light);
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.5;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.2rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .time-display {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .time {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .date {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        nav {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 0.6rem 0;
+            margin-bottom: 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-container {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding: 0.25rem 0;
+        }
+
+        nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 0.6rem 1rem;
+            border-radius: var(--radius);
+            white-space: nowrap;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        nav a:hover {
+            background: #eef2ff;
+            color: var(--primary);
+        }
+
+        nav a.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            min-height: 300px;
+            cursor: grab;
+        }
+
+        .card:active {
+            cursor: grabbing;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .card.expanded {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            height: 90%;
+            z-index: 1000;
+            max-width: 1000px;
+            max-height: 800px;
+            overflow-y: auto;
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-icon {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            resize: vertical;
+            transition: var(--transition);
+            background: #fcfcfc;
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-sm {
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .output {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            overflow-y: auto;
+            min-height: 100px;
+            flex-grow: 1;
+        }
+
+        /* 计算器样式 */
+        .calculator {
+            max-width: 280px;
+            margin: 0 auto;
+        }
+
+        .calc-screen {
+            background: #1e293b;
+            color: white;
+            text-align: right;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            min-height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .calc-btn {
+            aspect-ratio: 1;
+            font-size: 1.1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .calc-btn:hover {
+            background: #eef2ff;
+        }
+
+        .calc-btn.op {
+            background: var(--primary);
+            color: white;
+        }
+
+        .calc-btn.op:hover {
+            background: var(--primary-dark);
+        }
+
+        .calc-btn.wide {
+            grid-column: span 2;
+            aspect-ratio: unset;
+        }
+
+        .calc-functions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        /* 番茄钟样式 */
+        .timer-container {
+            max-width: 300px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .timer-circle {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .timer-inner {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #tmDisplay {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        #tmStatus {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 0.3rem;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .timer-presets {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* 导航链接样式 */
+        .nav-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .nav-link {
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text);
+            font-size: 0.85rem;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: #e2e8f0;
+            color: var(--primary);
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover .delete-btn {
+            opacity: 1;
+        }
+
+        /* 批量链接样式 */
+        .links-container {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .link-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+        }
+
+        .link-url {
+            font-size: 0.85rem;
+            color: var(--primary);
+            text-decoration: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+        }
+
+        footer {
+            background: #0f172a;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #10b981;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* 确认对话框样式 */
+        .confirm-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .confirm-dialog.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .confirm-content {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .confirm-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .confirm-message {
+            margin-bottom: 1.5rem;
+            color: var(--text-light);
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        .confirm-btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .confirm-btn.cancel {
+            background: #f1f5f9;
+            color: var(--text);
+        }
+
+        .confirm-btn.cancel:hover {
+            background: #e2e8f0;
+        }
+
+        .confirm-btn.delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .confirm-btn.delete:hover {
+            background: #dc2626;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 0.75rem;
+                text-align: center;
+            }
+            
+            .header-left {
+                flex-direction: column;
+                gap: 1rem;
+                width: 100%;
+            }
+            
+            .nav-links {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            
+            .timer-circle {
+                width: 140px;
+                height: 140px;
+            }
+            
+            .timer-inner {
+                width: 120px;
+                height: 120px;
+            }
+            
+            #tmDisplay {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 12px;
+            }
+            
+            .card {
+                padding: 1.25rem;
+            }
+            
+            .timer-circle {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .timer-inner {
+                width: 100px;
+                height: 100px;
+            }
+            
+            #tmDisplay {
+                font-size: 1.5rem;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* 卡片拖拽功能 */
+        .card-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+
+        .drag-handle, .expand-handle {
+            width: 24px;
+            height: 24px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--text-light);
+            transition: var(--transition);
+        }
+
+        .drag-handle:hover, .expand-handle:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        /* 导航添加区域样式 */
+        .nav-add {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-add input {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        /* 拖拽时的样式 */
+        .card.dragging {
+            opacity: 0.6;
+            transform: rotate(5deg);
+            z-index: 1000;
+        }
+        
+        .card.placeholder {
+            background: rgba(0, 0, 0, 0.05);
+            border: 2px dashed var(--border);
+        }
+        
+        .card.drag-over {
+            border: 2px dashed var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="header-left">
+                    <div>
+                        <h1><i class="fas fa-tools"></i> 实用工具合集</h1>
+                        <p class="subtitle">作者：CKI | 所有功能离线可用</p>
+                    </div>
+                    <div class="time-display">
+                        <div class="time" id="currentTime">00:00:00</div>
+                        <div class="date" id="currentDate">2023年1月1日 星期X</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <div class="nav-container">
+                <a href="#basic" class="active"><i class="fas fa-wrench"></i> 基础工具</a>
+                <a href="#nav"><i class="fas fa-compass"></i> 一键导航</a>
+                <a href="#timer"><i class="fas fa-clock"></i> 番茄钟</a>
+                <a href="#calc"><i class="fas fa-calculator"></i> 计算器</a>
+                <a href="#batch"><i class="fas fa-link"></i> 批量链接</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="tools-grid">
+            <!-- 基础工具卡片 -->
+            <div class="card" id="card-num-convert">
+                <div class="card-controls">
+                    <div class="drag-handle" title="拖动"><i class="fas fa-arrows-alt"></i></div>
+                    <div class="expand-handle" title="放大/缩小" onclick="toggleExpand('card-num-convert')"><i class="fas fa-expand-alt"></i></div>
+                </div>
+                <h3><span class="card-icon"><i class="fas fa-exchange-alt"></i></span> 数字组转换</h3>
+                <textarea id="numIn" rows="3" placeholder="每行一个数字或空格分隔"></textarea>
+                <div class="btn-group">
+                    <button class="btn btn-sm" onclick="numConvert()"><i class="fas fa-sync-alt"></i> 转换</button>
+                    <button class="btn btn-sm btn-outline" onclick="copyOut('numOut')"><i class="fas fa-copy"></i> 复制</button>
+                    <button class="btn btn-sm btn-outline" onclick="clearBox('numIn','numOut')"><i class="fas fa-eraser"></i> 清空</button>
+                </div>
+                <div id="numOut" class="output">结果将显示在这里...</div>
+            </div>
+
+            <div class="card" id="card-comma-line">
+                <div class="card-controls">
+                    <div class="drag-handle" title="拖动"><i class="fas fa-arrows-alt"></i></div>
+                    <div class="expand-handle" title="放大/缩小" onclick="toggleExpand('card-comma-line')"><i class="fas fa-expand-alt"></i></div>
+                </div>
+                <h3><span class="card-icon"><i class="fas fa-arrow-right"></i></span> 逗号转回车</h3>
+                <textarea id="commaIn" rows="3" placeholder="a,b,c,d"></textarea>
+                <div class="btn-group">
+                    <button class="btn btn-sm" onclick="commaToLine()"><i class="fas fa-sync-alt"></i> 转换</button>
+                    <button class="btn btn-sm btn-outline" onclick="copyOut('commaOut')"><i class="fas fa-copy"></i> 复制</button>
+                    <button class="btn btn-sm btn-outline" onclick="clearBox('commaIn','commaOut')"><i class="fas fa-eraser"></i> 清空</button>
+                </div>
+                <div id="commaOut" class="output">结果将显示在这里...</div>
+            </div>
+
+            <div class="card" id="card-find-replace">
+                <div class="card-controls">
+                    <div class="drag-handle" title="拖动"><i class="fas fa-arrows-alt"></i></div>
+                    <div class="expand-handle" title="放大/缩小" onclick="toggleExpand('card-find-replace')"><i class="fas fa-expand-alt"></i></div>
+                </div>
+                <h3><span class="card-icon"><i class="fas fa-search"></i></span> 查找替换</h3>
+                <input type="text" id="find" placeholder="查找内容" value=",">
+                <input type="text" id="rep" placeholder="替换为" value=";" style="margin-top: 0.75rem;">
+                <textarea id="textIn" rows="3" style="margin-top: 0.75rem;" placeholder="输入文本"></textarea>
+                <div class="btn-group">
+                    <button class="btn btn-sm" onclick="findRep()"><i class="fas fa-sync-alt"></i> 替换</button>
+                    <button class="btn btn-sm btn-outline" onclick="copyOut('textOut')"><i class="fas fa-copy"></i> 复制</button>
+                    <button class="btn btn-sm btn-outline" onclick="clearFR()"><i class="fas fa-eraser"></i> 清空</button>
+                </div>
+                <div id="textOut" class="output">结果将显示在这里...</div>
+            </div>
+
+            <!-- 一键导航卡片 -->
+            <div class="card" id="card-nav">
+                <div class="card-controls">
+                    <div class="drag-handle" title="拖动"><i class="fas fa-arrows-alt"></i></div>
+                    <div class="expand-handle" title="放大/缩小" onclick="toggleExpand('card-nav')"><i class="fas fa-expand-alt"></i></div>
+                </div>
+                <h3><span class="card-icon"><i class="fas fa-compass"></i></span> 一键网页导航</h3>
+                <div class="nav-add">
+                    <input type="text" id="navName" placeholder="名称">
+                    <input type="text" id="navUrl" placeholder="网址（含 https://）">
+                    <button class="btn btn-sm" onclick="addNav()"><i class="fas fa-plus"></i> 添加</button>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-sm" onclick="saveNav()"><i class="fas fa-save"></i> 保存</button>
+                </div>
+                <div id="navOut" class="nav-links"></div>
+            </div>
+
+            <!-- 番茄钟卡片 -->
+            <div class="card" id="card-timer">
+                <div class="card-controls">
+                    <div class="drag-handle" title="拖动"><i class="fas fa-arrows-alt"></i></div>
+                    <div class="expand-handle" title="放大/缩小" onclick="toggleExpand('card-timer')"><i class="fas fa-expand-alt"></i></div>
+                </div>
+                <h3><span class="card-icon"><i class="fas fa-clock"></i></span> 番茄钟</h3>
+                <div class="timer-container">
+                    <div class="timer-circle">
+                        <div class="timer-inner">
+                            <div id="tmDisplay">25:00</div>
+                            <div id="tmStatus">准备开始</div>
+                        </div>
+                    </div>
+                    <div class="timer-controls">
+                        <button class="btn btn-sm" onclick="tmStart()"><i class="fas fa-play"></i> 开始</button>
+                        <button class="btn btn-sm btn-outline" onclick="tmPause()"><i class="fas fa-pause"></i> 暂停</button>
+                        <button class="btn btn-sm btn-outline" onclick="tmReset()"><i class="fas fa-stop"></i> 重置</button>
+                    </div>
+                    <div class="timer-presets">
+                        <button class="btn btn-sm" onclick="setTmType('work')">工作 25</button>
+                        <button class="btn btn-sm" onclick="setTmType('short')">短休 5</button>
+                        <button class="btn btn-sm" onclick="setTmType('long')">长休 15</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 计算器卡片 -->
+            <div class="card" id="card-calc">
+                <div class="card-controls">
+                    <div class="drag-handle" title="拖动"><i class="fas fa-arrows-alt"></i></div>
+                    <div class="expand-handle" title="放大/缩小" onclick="toggleExpand('card-calc')"><i class="fas fa-expand-alt"></i></div>
+                </div>
+                <h3><span class="card-icon"><i class="fas fa-calculator"></i></span> 科学计算器</h3>
+                <div class="calculator">
+                    <div id="calcScreen" class="calc-screen">0</div>
+                    <div class="calc-buttons">
+                        <button class="calc-btn" onclick="calcClear()">C</button>
+                        <button class="calc-btn" onclick="calcDel()">⌫</button>
+                        <button class="calc-btn op" onclick="calcInput('/')">÷</button>
+                        <button class="calc-btn op" onclick="calcInput('*')">×</button>
+
+                        <button class="calc-btn" onclick="calcInput('7')">7</button>
+                        <button class="calc-btn" onclick="calcInput('8')">8</button>
+                        <button class="calc-btn" onclick="calcInput('9')">9</button>
+                        <button class="calc-btn op" onclick="calcInput('-')">-</button>
+
+                        <button class="calc-btn" onclick="calcInput('4')">4</button>
+                        <button class="calc-btn" onclick="calcInput('5')">5</button>
+                        <button class="calc-btn" onclick="calcInput('6')">6</button>
+                        <button class="calc-btn op" onclick="calcInput('+')">+</button>
+
+                        <button class="calc-btn" onclick="calcInput('1')">1</button>
+                        <button class="calc-btn" onclick="calcInput('2')">2</button>
+                        <button class="calc-btn" onclick="calcInput('3')">3</button>
+                        <button class="calc-btn op" onclick="calcEqual()">=</button>
+
+                        <button class="calc-btn wide" onclick="calcInput('0')">0</button>
+                        <button class="calc-btn" onclick="calcInput('.')">.</button>
+                    </div>
+                    <div class="calc-functions">
+                        <button class="calc-btn op" onclick="calcFn('sin')">sin</button>
+                        <button class="calc-btn op" onclick="calcFn('cos')">cos</button>
+                        <button class="calc-btn op" onclick="calcFn('tan')">tan</button>
+                        <button class="calc-btn op" onclick="calcFn('sqrt')">√</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 批量链接卡片 -->
+            <div class="card" id="card-batch">
+                <div class="card-controls">
+                    <div class="drag-handle" title="拖动"><i class="fas fa-arrows-alt"></i></div>
+                    <div class="expand-handle" title="放大/缩小" onclick="toggleExpand('card-batch')"><i class="fas fa-expand-alt"></i></div>
+                </div>
+                <h3><span class="card-icon"><i class="fas fa-link"></i></span> 批量链接生成与打开</h3>
+                <label>基础 URL（用 {id} 占位）</label>
+                <input type="text" id="baseUrl" value="https://fanxing2.kugou.com/cterm/ssr/profile/pc/views/ssrindex.html?page=userinfo&userId={id}" style="margin-top: 0.5rem;">
+                <label style="margin-top: 1rem;">ID 列表（每行一个）</label>
+                <textarea id="idList" rows="3" placeholder="123456" style="margin-top: 0.5rem;"></textarea>
+                <div class="btn-group">
+                    <button class="btn btn-sm" onclick="genLinks()"><i class="fas fa-cogs"></i> 生成链接</button>
+                    <button class="btn btn-sm btn-outline" onclick="openAll()" id="openBtn" style="display:none;"><i class="fas fa-external-link-alt"></i> 批量打开</button>
+                    <button class="btn btn-sm btn-outline" onclick="clearBox('idList','linkOut')"><i class="fas fa-eraser"></i> 清空</button>
+                </div>
+                <div id="linkOut" class="links-container" style="margin-top: 1rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 实用工具合集</p>
+            <p style="color: #94a3b8; margin-top: 0.5rem;">作者：CKI | 所有处理均在浏览器完成，安全离线</p>
+        </div>
+    </footer>
+
+    <div id="toast" class="toast"></div>
+
+    <!-- 确认删除对话框 -->
+    <div id="confirmDialog" class="confirm-dialog">
+        <div class="confirm-content">
+            <div class="confirm-title">确认删除</div>
+            <div class="confirm-message">确定要删除这个导航链接吗？</div>
+            <div class="confirm-buttons">
+                <button class="confirm-btn cancel" onclick="hideConfirmDialog()">取消</button>
+                <button class="confirm-btn delete" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 时间日期更新
+        function updateDateTime() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('zh-CN');
+            const date = now.toLocaleDateString('zh-CN', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                weekday: 'long'
+            });
+            
+            document.getElementById('currentTime').textContent = time;
+            document.getElementById('currentDate').textContent = date;
+        }
+        
+        // 初始化时间
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+        // 通用功能
+        function toast(msg = '已复制到剪贴板') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 1500);
+        }
+
+        function copyOut(id) {
+            navigator.clipboard.writeText(document.getElementById(id).innerText).then(() => toast());
+        }
+
+        function clearBox(a, b) {
+            document.getElementById(a).value = '';
+            document.getElementById(b).innerHTML = '结果将显示在这里...';
+        }
+
+        // 基础工具
+        function numConvert() {
+            const v = document.getElementById('numIn').value.trim();
+            if (!v) return;
+            const nums = v.split(/\s+/).map(n => n.replace(/[^\d]/g, '')).filter(Boolean);
+            document.getElementById('numOut').innerHTML = `<pre class="text-sm">${nums.join(',')}</pre>`;
+        }
+
+        function commaToLine() {
+            const v = document.getElementById('commaIn').value;
+            document.getElementById('commaOut').innerHTML = `<pre class="text-sm">${v.split(',').map(s => s.trim()).join('\n')}</pre>`;
+        }
+
+        function findRep() {
+            const find = document.getElementById('find').value,
+                  rep = document.getElementById('rep').value,
+                  text = document.getElementById('textIn').value;
+            document.getElementById('textOut').innerHTML = `<pre class="text-sm">${text.replace(new RegExp(find.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), rep)}</pre>`;
+        }
+
+        function clearFR() {
+            ['find', 'rep', 'textIn', 'textOut'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('textOut').innerHTML = '结果将显示在这里...';
+        }
+
+        // 一键导航
+        const NAV_KEY = 'nav_data';
+        let navData = [];
+        let itemToDelete = null;
+        
+        // 添加隐藏的textarea用于存储导航数据
+        document.addEventListener('DOMContentLoaded', function() {
+            // 加载保存的导航数据
+            loadNav();
+        });
+        
+        function saveNav() {
+            localStorage.setItem(NAV_KEY, JSON.stringify(navData));
+            toast('已保存');
+        }
+
+        function addNav() {
+            const name = document.getElementById('navName').value.trim();
+            const url = document.getElementById('navUrl').value.trim();
+            if (!name || !url) return toast('请输入完整信息');
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                return toast('网址必须以 http:// 或 https:// 开头');
+            }
+            
+            navData.push({name, url});
+            document.getElementById('navName').value = '';
+            document.getElementById('navUrl').value = '';
+            genNav();
+            saveNav();
+        }
+
+        function loadNav() {
+            const v = localStorage.getItem(NAV_KEY);
+            if (v) {
+                try {
+                    navData = JSON.parse(v);
+                } catch (e) {
+                    navData = [];
+                }
+            }
+            genNav();
+        }
+
+        function genNav() {
+            const html = navData.map((item, index) => {
+                return `
+                    <a href="${item.url}" target="_blank" class="nav-link">
+                        ${item.name}
+                        <button class="delete-btn" onclick="showConfirmDialog(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </a>
+                `;
+            }).join('');
+            document.getElementById('navOut').innerHTML = html || '<span class="text-gray-500 col-span-full">暂无导航，请添加网站</span>';
+        }
+
+        // 删除确认功能
+        function showConfirmDialog(index) {
+            itemToDelete = index;
+            document.getElementById('confirmDialog').classList.add('show');
+        }
+
+        function hideConfirmDialog() {
+            document.getElementById('confirmDialog').classList.remove('show');
+            itemToDelete = null;
+        }
+
+        function confirmDelete() {
+            if (itemToDelete !== null) {
+                navData.splice(itemToDelete, 1);
+                genNav();
+                saveNav();
+                hideConfirmDialog();
+                toast('已删除导航链接');
+            }
+        }
+
+        // 番茄钟
+        let tmInt, tmLeft = 25 * 60, tmType = 'work';
+
+        function setTmType(t) {
+            tmType = t;
+            tmLeft = { work: 25, short: 5, long: 15 }[t] * 60;
+            tmUpdate();
+        }
+
+        function tmUpdate() {
+            const m = String(Math.floor(tmLeft / 60)).padStart(2, '0'),
+                  s = String(tmLeft % 60).padStart(2, '0');
+            document.getElementById('tmDisplay').textContent = `${m}:${s}`;
+        }
+
+        function tmStart() {
+            if (tmInt) return;
+            document.getElementById('tmStatus').textContent = '计时中';
+            tmInt = setInterval(() => {
+                if (tmLeft > 0) {
+                    tmLeft--;
+                    tmUpdate();
+                } else {
+                    clearInterval(tmInt);
+                    tmInt = null;
+                    alert('时间到！');
+                    tmReset();
+                }
+            }, 1000);
+        }
+
+        function tmPause() {
+            clearInterval(tmInt);
+            tmInt = null;
+            document.getElementById('tmStatus').textContent = '已暂停';
+        }
+
+        function tmReset() {
+            clearInterval(tmInt);
+            tmInt = null;
+            setTmType(tmType);
+            document.getElementById('tmStatus').textContent = '准备开始';
+        }
+
+        // 计算器
+        let calcVal = '0';
+
+        function calcUpdate() {
+            document.getElementById('calcScreen').innerText = calcVal;
+        }
+
+        function calcInput(ch) {
+            calcVal = calcVal === '0' ? ch : calcVal + ch;
+            calcUpdate();
+        }
+
+        function calcClear() {
+            calcVal = '0';
+            calcUpdate();
+        }
+
+        function calcDel() {
+            calcVal = calcVal.length === 1 ? '0' : calcVal.slice(0, -1);
+            calcUpdate();
+        }
+
+        function calcEqual() {
+            try {
+                calcVal = String(eval(calcVal.replace(/×/g, '*').replace(/÷/g, '/')));
+                calcUpdate();
+            } catch {
+                calcVal = 'Error';
+                calcUpdate();
+                calcVal = '0';
+            }
+        }
+
+        function calcFn(fn) {
+            const v = parseFloat(calcVal);
+            if (isNaN(v)) return;
+            const map = {
+                sin: Math.sin(v * Math.PI / 180),
+                cos: Math.cos(v * Math.PI / 180),
+                tan: Math.tan(v * Math.PI / 180),
+                sqrt: Math.sqrt(v)
+            };
+            calcVal = String(map[fn].toFixed(6));
+            calcUpdate();
+        }
+
+        // 批量链接
+        function genLinks() {
+            const base = document.getElementById('baseUrl').value,
+                  ids = document.getElementById('idList').value.trim().split('\n').filter(Boolean);
+            if (!ids.length) return;
+            const html = ids.map(id => `
+                <div class="link-item">
+                    <a href="${base.replace('{id}', id)}" target="_blank" class="link-url">${base.replace('{id}', id)}</a>
+                </div>
+            `).join('');
+            document.getElementById('linkOut').innerHTML = html;
+            document.getElementById('openBtn').style.display = 'inline-block';
+        }
+
+        function openAll() {
+            const base = document.getElementById('baseUrl').value,
+                  ids = document.getElementById('idList').value.trim().split('\n').filter(Boolean);
+            ids.forEach(id => window.open(base.replace('{id}', id), '_blank'));
+        }
+
+        // 卡片展开/收缩功能
+        function toggleExpand(cardId) {
+            const card = document.getElementById(cardId);
+            card.classList.toggle('expanded');
+            
+            // 更新图标
+            const expandIcon = card.querySelector('.expand-handle i');
+            if (card.classList.contains('expanded')) {
+                expandIcon.className = 'fas fa-compress-alt';
+            } else {
+                expandIcon.className = 'fas fa-expand-alt';
+            }
+        }
+
+        // 卡片拖拽排序功能
+        function initCardDrag() {
+            const cards = document.querySelectorAll('.card');
+            const grid = document.querySelector('.tools-grid');
+            let draggedCard = null;
+            
+            // 为每个卡片添加拖拽事件
+            cards.forEach(card => {
+                card.setAttribute('draggable', 'true');
+                
+                card.addEventListener('dragstart', function(e) {
+                    draggedCard = this;
+                    setTimeout(() => {
+                        this.classList.add('dragging');
+                    }, 0);
+                });
+                
+                card.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                    draggedCard = null;
+                    
+                    // 移除所有拖拽相关的样式
+                    cards.forEach(c => {
+                        c.classList.remove('drag-over');
+                    });
+                });
+                
+                card.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    if (this !== draggedCard) {
+                        this.classList.add('drag-over');
+                    }
+                });
+                
+                card.addEventListener('dragleave', function() {
+                    this.classList.remove('drag-over');
+                });
+                
+                card.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                    
+                    if (this !== draggedCard) {
+                        // 获取所有卡片的数组
+                        const allCards = Array.from(grid.querySelectorAll('.card'));
+                        const thisIndex = allCards.indexOf(this);
+                        const draggedIndex = allCards.indexOf(draggedCard);
+                        
+                        if (draggedIndex < thisIndex) {
+                            grid.insertBefore(draggedCard, this.nextSibling);
+                        } else {
+                            grid.insertBefore(draggedCard, this);
+                        }
+                        
+                        // 保存新的卡片顺序
+                        saveCardOrder();
+                    }
+                });
+            });
+            
+            // 保存卡片顺序到本地存储
+            function saveCardOrder() {
+                const cards = Array.from(document.querySelectorAll('.card'));
+                const cardOrder = cards.map(card => card.id);
+                localStorage.setItem('cardOrder', JSON.stringify(cardOrder));
+            }
+            
+            // 加载卡片顺序
+            function loadCardOrder() {
+                const savedOrder = localStorage.getItem('cardOrder');
+                if (savedOrder) {
+                    const cardOrder = JSON.parse(savedOrder);
+                    const grid = document.querySelector('.tools-grid');
+                    
+                    // 按照保存的顺序重新排列卡片
+                    cardOrder.forEach(cardId => {
+                        const card = document.getElementById(cardId);
+                        if (card) {
+                            grid.appendChild(card);
+                        }
+                    });
+                }
+            }
+            
+            // 初始化时加载卡片顺序
+            loadCardOrder();
+        }
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            setTmType('work');
+            initCardDrag();
+
+            // 导航点击效果
+            document.querySelectorAll('nav a').forEach(link => {
+                link.addEventListener('click', function() {
+                    document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
