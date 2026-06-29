@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>资源位返图整理工具</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f5f5f5;
+  color: #333;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 7px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background .15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+  border-radius: 5px;
+}
+.btn-primary { background: #1677ff; color: #fff; }
+.btn-primary:hover { background: #0958d9; }
+.btn-success { background: #52c41a; color: #fff; }
+.btn-success:hover { background: #389e0d; }
+.btn-orange { background: #fa8c16; color: #fff; }
+.btn-orange:hover { background: #d46b08; }
+.btn-default { background: #fff; color: #333; border: 1px solid #d9d9d9; }
+.btn-default:hover { background: #f0f0f0; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #e0e0e0;
+}
+.tab {
+  padding: 10px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  color: #666;
+  transition: all .15s;
+  user-select: none;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+.tab:hover { color: #333; }
+.tab.active {
+  color: #1677ff;
+  border-bottom-color: #1677ff;
+}
+.tab .count {
+  display: inline-block;
+  background: #e6f0ff;
+  color: #1677ff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 0 6px;
+  border-radius: 8px;
+  margin-left: 4px;
+  line-height: 18px;
+}
+
+/* Stats bar */
+.stats-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #888;
+  flex-wrap: wrap;
+}
+.stats-bar span { display: flex; align-items: center; gap: 4px; }
+.stats-bar .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+.dot-done { background: #52c41a; }
+.dot-empty { background: #d9d9d9; }
+
+/* Custom section */
+.custom-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.custom-toolbar-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+}
+.custom-toolbar-title h2 {
+  font-size: 14px;
+  color: #333;
+}
+.custom-toolbar-title p {
+  font-size: 12px;
+  color: #888;
+}
+.custom-section {
+  margin-bottom: 14px;
+}
+.custom-section:empty {
+  display: none;
+}
+
+/* Section */
+.section { display: none; }
+.section.active { display: block; }
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+@media (max-width: 1200px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 900px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 600px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* Card */
+.card {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+  overflow: hidden;
+  transition: box-shadow .15s, border-color .15s;
+  position: relative;
+}
+.card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.card.drag-over {
+  border-color: #1677ff;
+  box-shadow: 0 0 0 2px rgba(22,119,255,.2);
+}
+.card.has-image {
+  border-color: #b7eb8f;
+}
+.card.copy-success {
+  border-color: #52c41a;
+  box-shadow: 0 0 0 2px rgba(82,196,26,.16);
+}
+.card.is-active {
+  border-color: #1677ff;
+  box-shadow: 0 0 0 2px rgba(22,119,255,.15);
+}
+.card-header {
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 30px;
+  gap: 4px;
+}
+.card-header .name-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+.card-header .name-group .name-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-header .index {
+  color: #bbb;
+  font-weight: 400;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.copy-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #bbb;
+  font-size: 13px;
+  padding: 0 2px;
+  line-height: 1;
+  transition: color .15s;
+  display: inline-flex;
+  align-items: center;
+}
+.copy-btn:hover { color: #1677ff; }
+.copy-btn.copied { color: #52c41a; }
+.slot-remove-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #bbb;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px;
+}
+.slot-remove-btn:hover { color: #ff4d4f; }
+.custom-name-input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid transparent;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  outline: none;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.custom-name-input:focus {
+  border-color: #91caff;
+  background: #f7fbff;
+}
+.custom-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 9px;
+  background: #f0f5ff;
+  color: #1677ff;
+  font-size: 11px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.card-body {
+  position: relative;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fbfbfb;
+  cursor: pointer;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  color: #ccc;
+  padding: 20px;
+  user-select: none;
+  pointer-events: none;
+}
+.empty-state .icon {
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+.empty-state .text {
+  font-size: 12px;
+}
+
+/* Image preview */
+.card-body img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  max-height: 200px;
+  cursor: grab;
+}
+.card-body img:active { cursor: grabbing; }
+
+.card-hover-actions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: none;
+  gap: 4px;
+  z-index: 2;
+}
+.card:hover .card-hover-actions { display: flex; }
+
+.hover-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,.5);
+  color: #fff;
+  font-size: 12px;
+  line-height: 22px;
+  text-align: center;
+  cursor: pointer;
+  opacity: .8;
+  transition: opacity .15s;
+  text-decoration: none;
+  display: block;
+}
+.hover-btn:hover { opacity: 1; }
+.hover-btn.remove-btn { font-size: 13px; }
+
+.paste-hint {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  font-size: 11px;
+  color: #999;
+  background: rgba(255,255,255,.92);
+  border-radius: 10px;
+  padding: 3px 8px;
+  z-index: 1;
+}
+.copy-feedback {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  font-size: 11px;
+  color: #389e0d;
+  background: rgba(246,255,237,.96);
+  border: 1px solid #b7eb8f;
+  border-radius: 10px;
+  padding: 3px 8px;
+  z-index: 1;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity .18s, transform .18s;
+  pointer-events: none;
+}
+.card.copy-success .copy-feedback {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Lightbox */
+.lightbox {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,.75);
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+.lightbox.show { display: flex; }
+.lightbox img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.4);
+}
+.lightbox .close {
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  font-size: 32px;
+  color: #fff;
+  cursor: pointer;
+  opacity: .8;
+}
+.lightbox .close:hover { opacity: 1; }
+.lightbox .lb-name {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  font-size: 14px;
+  background: rgba(0,0,0,.6);
+  padding: 6px 16px;
+  border-radius: 4px;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,.8);
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  z-index: 2000;
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; }
+
+/* Context menu */
+.context-menu {
+  position: fixed;
+  z-index: 3000;
+  min-width: 150px;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.14);
+  padding: 6px;
+  display: none;
+}
+.context-menu.show { display: block; }
+.context-menu button {
+  display: block;
+  width: 100%;
+  border: none;
+  background: none;
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: #333;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.context-menu button:hover {
+  background: #f5f5f5;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📸 资源位返图整理</h1>
+  <div class="header-actions">
+    <button class="btn btn-success" onclick="exportZip()">📦 导出 ZIP</button>
+    <button class="btn btn-orange" onclick="clearAll()">🗑️ 清空全部</button>
+    <button class="btn btn-default" onclick="loadFromDisk()">📂 导入存档</button>
+    <button class="btn btn-default" onclick="saveToDisk()">💾 保存进度</button>
+  </div>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<div class="custom-toolbar">
+  <div class="custom-toolbar-title">
+    <h2>自定义框</h2>
+    <p>新增后与普通框一致，可改名、粘贴、拖入和删除。</p>
+  </div>
+  <button class="btn btn-primary btn-sm" onclick="addCustomItem()">+ 新增框</button>
+</div>
+
+<div class="custom-section" id="customSection"></div>
+
+<div id="sectionContainer"></div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="close">&times;</span>
+  <img id="lbImg" src="" alt="">
+  <div class="lb-name" id="lbName"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Context menu -->
+<div class="context-menu" id="contextMenu">
+  <button type="button" onclick="copyActiveCardImage()">复制图片</button>
+  <button type="button" onclick="pasteIntoActiveCard()">粘贴图片</button>
+  <button type="button" onclick="pickImageForActiveCard()">选择本地图片</button>
+  <button type="button" onclick="clearActiveCardImage()">清空当前图片</button>
+</div>
+
+<script>
+// ============ DATA ============
+const DATA = {
+  '酷狗公售': [
+    '闪屏', '评论信息流（定向歌手）', '每日歌曲推荐焦点图', '歌手页ban',
+    '播放页顶部气泡（定向歌手）', '歌单&专辑顶部卡片', '推广文字链',
+    '乐库推荐banner', '搜索拦截', '站内信', 'Push', '演出侧边栏',
+    '酷狗音乐官博'
+  ],
+  '酷狗优先购': [
+    '闪屏', '会员中心活动瀑布流', '会员中心ban', '会员侧边栏',
+    '评论信息流（定向歌手）', '每日歌曲推荐焦点图', '歌手页ban',
+    '播放页顶部气泡（定向歌手）', '歌单&专辑顶部卡片', '推广文字链',
+    '乐库推荐banner', '搜索拦截', '站内信', 'Push', '酷狗音乐官博'
+  ],
+  'Q音公售': [
+    'Push', '站内信', '歌手页中通banner', '搜索直达区',
+    '音乐馆焦点图', '星光卡tab-焦点图', '闪屏（非会员）', 'qq音乐官方微博'
+  ]
+};
+
+// Store images: { sectionIndex_resourceIndex: dataURL }
+let imageStore = {};
+let customItems = [];
+let currentTab = 0;
+let activeCardKey = null;
+let dragSourceKey = null;
+const sectionKeys = Object.keys(DATA);
+
+// ============ INIT ============
+function init() {
+  renderTabs();
+  renderCustomSection();
+  renderSections();
+  switchTab(0);
+  updateStats();
+  loadFromLocalStorage();
+}
+
+function renderTabs() {
+  const container = document.getElementById('tabs');
+  container.innerHTML = sectionKeys.map((name, i) =>
+    `<button class="tab${i === 0 ? ' active' : ''}" data-idx="${i}" onclick="switchTab(${i})">
+      ${name} <span class="count">${DATA[name].length}</span>
+    </button>`
+  ).join('');
+}
+
+function renderCard(name, key, index, options = {}) {
+  const hasImg = imageStore[key];
+  const isCustom = !!options.isCustom;
+  const bodyClick = `handleCardClick(event, '${key}')`;
+  const bodyDblClick = `handleCardDoubleClick(event, '${key}')`;
+  const nameContent = isCustom
+    ? `<input class="custom-name-input" value="${escapeHtml(name)}" placeholder="输入自定义名称"
+         oninput="updateCustomName('${key}', this.value)" onclick="event.stopPropagation()">`
+    : `<span class="name-text" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
+       <button class="copy-btn" onclick="event.stopPropagation();copyName('${key}')" title="复制名称">📋</button>`;
+  const customActions = isCustom
+    ? `<button class="slot-remove-btn" onclick="event.stopPropagation();removeCustomItem('${key}')" title="删除框">✕</button>`
+    : `<span class="index">#${index + 1}</span>`;
+  const hoverActions = hasImg ? `
+    <div class="card-hover-actions">
+      <button class="hover-btn" onclick="event.stopPropagation();copyImage('${key}')" title="复制图片">⧉</button>
+      <button class="hover-btn remove-btn" onclick="event.stopPropagation();removeImage('${key}')" title="移除图片">✕</button>
+      <a class="hover-btn" href="${imageStore[key]}" download="${sanitizeFileName(name || '未命名')}.png" title="下载">⬇</a>
+    </div>
+  ` : '';
+  return `
+    <div class="card${hasImg ? ' has-image' : ''}${activeCardKey === key ? ' is-active' : ''}" data-key="${key}" data-name="${escapeHtml(name)}"
+         tabindex="0" onfocus="setActiveCard('${key}')" onclick="setActiveCard('${key}')"
+         oncontextmenu="openContextMenu(event, '${key}')"
+         ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">
+      <div class="card-header">
+        <div class="name-group">
+          ${nameContent}
+        </div>
+        ${customActions}
+      </div>
+      <div class="card-body" onclick="${bodyClick}" ondblclick="${bodyDblClick}">
+        <div class="empty-state">
+          <div class="icon">🖼</div>
+          <div class="text">拖入 / 粘贴 / 右键添加</div>
+        </div>
+        ${hasImg ? `<img src="${imageStore[key]}" draggable="true" data-key="${key}">` : ''}
+        <div class="paste-hint">${hasImg ? '单击复制，双击预览' : '右键粘贴 或 Ctrl/Cmd+V'}</div>
+        <div class="copy-feedback">已复制，可去微信粘贴</div>
+        ${hoverActions}
+      </div>
+    </div>
+  `;
+}
+
+function renderCustomSection() {
+  const container = document.getElementById('customSection');
+  if (!customItems.length) {
+    container.innerHTML = '';
+    return;
+  }
+  container.innerHTML = `<div class="grid">${customItems.map((item, index) =>
+    renderCard(item.name, itemKey(item.id), index, { isCustom: true })
+  ).join('')}</div>`;
+  reBindDragEvents();
+  updateActiveCardUI();
+}
+
+function renderSections() {
+  const container = document.getElementById('sectionContainer');
+  container.innerHTML = sectionKeys.map((sectionName, si) => {
+    const items = DATA[sectionName];
+    const grid = items.map((name, ri) => renderCard(name, `${si}_${ri}`, ri)).join('');
+    return `<div class="section${si === 0 ? ' active' : ''}" data-section-idx="${si}"><div class="grid">${grid}</div></div>`;
+  }).join('');
+
+  reBindDragEvents();
+  updateActiveCardUI();
+}
+
+function reBindDragEvents() {
+  // Bind dragstart on images for drag-out + in-page
+  document.querySelectorAll('.card-body img').forEach(el => {
+    el.addEventListener('dragstart', onImageDragStart);
+  });
+}
+
+// ============ TAB SWITCH ============
+function switchTab(idx) {
+  currentTab = idx;
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  document.querySelectorAll('.section').forEach((s, i) => s.classList.toggle('active', i === idx));
+  updateStats();
+}
+
+// ============ COPY NAME ============
+function copyName(key) {
+  const name = getDisplayName(key);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(name).then(() => {
+      showCopiedFeedback(key);
+    }).catch(() => {
+      fallbackCopy(name, key);
+    });
+  } else {
+    fallbackCopy(name, key);
+  }
+}
+
+function fallbackCopy(text, key) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showCopiedFeedback(key);
+  } catch(_) {}
+  document.body.removeChild(ta);
+}
+
+function showCopiedFeedback(key) {
+  const card = document.querySelector(`.card[data-key="${key}"]`);
+  if (!card) return;
+  const btn = card.querySelector('.copy-btn');
+  btn.textContent = '✓';
+  btn.classList.add('copied');
+  clearTimeout(btn._timeout);
+  btn._timeout = setTimeout(() => {
+    btn.textContent = '📋';
+    btn.classList.remove('copied');
+  }, 1200);
+}
+
+function showImageCopiedFeedback(key) {
+  const card = document.querySelector(`.card[data-key="${key}"]`);
+  if (!card) return;
+  card.classList.add('copy-success');
+  clearTimeout(card._copyTimer);
+  card._copyTimer = setTimeout(() => {
+    card.classList.remove('copy-success');
+  }, 1400);
+}
+
+// ============ IMAGE OPERATIONS ============
+function handleFileDrop(key, file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    setImageForKey(key, e.target.result);
+  };
+  reader.readAsDataURL(file);
+}
+
+function setImageForKey(key, dataUrl) {
+  if (!key || !dataUrl) return;
+  imageStore[key] = dataUrl;
+  rerenderCardGroupByKey(key);
+  updateStats();
+  autoSave();
+}
+
+function removeImage(key) {
+  delete imageStore[key];
+  rerenderCardGroupByKey(key);
+  updateStats();
+  autoSave();
+}
+
+function clearAll() {
+  if (!confirm('确认清空所有图片？')) return;
+  imageStore = {};
+  sectionKeys.forEach((_, i) => reRenderSection(i));
+  renderCustomSection();
+  updateStats();
+  autoSave();
+  showToast('已清空全部图片');
+}
+
+function handleCardClick(event, key) {
+  setActiveCard(key);
+  const target = event.target;
+  // Don't react if clicking on controls
+  if (target.closest('.copy-btn') || target.closest('.hover-btn') || target.closest('.card-header')) return;
+  const img = imageStore[key];
+  if (!img) return;
+  copyImage(key);
+}
+
+function handleCardDoubleClick(event, key) {
+  setActiveCard(key);
+  const target = event.target;
+  if (target.closest('.copy-btn') || target.closest('.hover-btn') || target.closest('.card-header')) return;
+  const img = imageStore[key];
+  if (!img) return;
+  document.getElementById('lbImg').src = img;
+  document.getElementById('lbName').textContent = getDisplayName(key);
+  document.getElementById('lightbox').classList.add('show');
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('show');
+}
+
+// ============ DRAG & DROP (within page + drag-out) ============
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = dragSourceKey ? 'move' : 'copy';
+  e.currentTarget.classList.add('drag-over');
+}
+
+function onDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+async function onDrop(e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  const targetKey = e.currentTarget.dataset.key;
+  if (!targetKey) return;
+  setActiveCard(targetKey);
+  hideContextMenu();
+
+  // Case 1: dragged from another card within page
+  if (dragSourceKey && dragSourceKey !== targetKey && imageStore[dragSourceKey]) {
+    const temp = imageStore[targetKey];
+    imageStore[targetKey] = imageStore[dragSourceKey];
+    if (temp !== undefined) {
+      imageStore[dragSourceKey] = temp;
+    } else {
+      delete imageStore[dragSourceKey];
+    }
+    dragSourceKey = null;
+    reRenderAll();
+    updateStats();
+    autoSave();
+    return;
+  }
+
+  const imageData = await extractImageFromDataTransfer(e.dataTransfer);
+  if (imageData) {
+    if (imageData.file) {
+      handleFileDrop(targetKey, imageData.file);
+    } else if (imageData.dataUrl) {
+      setImageForKey(targetKey, imageData.dataUrl);
+    }
+  } else {
+    showToast('没有识别到图片，可试试先复制后右键粘贴');
+  }
+}
+
+function onImageDragStart(e) {
+  const key = e.target.dataset.key;
+  if (!key) return;
+  dragSourceKey = key;
+  e.dataTransfer.effectAllowed = 'copyMove';
+
+  const img = imageStore[key];
+  if (!img) return;
+
+  // Set drag image as the image itself (scaled)
+  const canvas = document.createElement('canvas');
+  const imgEl = new Image();
+  imgEl.onload = function() {
+    const maxW = 200;
+    const scale = Math.min(1, maxW / imgEl.width);
+    canvas.width = imgEl.width * scale;
+    canvas.height = imgEl.height * scale;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(imgEl, 0, 0, canvas.width, canvas.height);
+    e.dataTransfer.setDragImage(canvas, canvas.width / 2, canvas.height / 2);
+  };
+  imgEl.src = img;
+
+  // For drag-out to chat apps: set image data in multiple formats
+  try {
+    // Convert dataURL to blob for proper file transfer
+    const blob = dataURLToBlob(img);
+    const file = new File([blob], 'image.png', { type: 'image/png' });
+    e.dataTransfer.items.add(file);
+  } catch(_) {}
+
+  // Also set text/uri-list for apps that accept URLs
+  e.dataTransfer.setData('text/uri-list', img);
+
+  // Chrome/Edge: DownloadURL format for drag-to-desktop
+  const name = getDisplayName(key) || 'image';
+  e.dataTransfer.setData('DownloadURL', `${name}.png:image/png:${img}`);
+}
+
+// Clear drag source on dragend
+document.addEventListener('dragend', function() {
+  dragSourceKey = null;
+});
+
+// ============ EXPORT ZIP ============
+async function exportZip() {
+  const zip = new JSZip();
+  let total = 0;
+
+  for (const [si, sectionName] of sectionKeys.entries()) {
+    const items = DATA[sectionName];
+    const folder = zip.folder(sectionName);
+    for (let ri = 0; ri < items.length; ri++) {
+      const key = `${si}_${ri}`;
+      if (imageStore[key]) {
+        const name = items[ri].replace(/[\/\\?%*:|"<>]/g, '_');
+        const blob = dataURLToBlob(imageStore[key]);
+        folder.file(`${name}.png`, blob);
+        total++;
+      }
+    }
+  }
+
+  if (customItems.length) {
+    const folder = zip.folder('自定义');
+    customItems.forEach(item => {
+      const key = itemKey(item.id);
+      if (!imageStore[key]) return;
+      const name = sanitizeFileName(item.name || `自定义_${item.id}`);
+      const blob = dataURLToBlob(imageStore[key]);
+      folder.file(`${name}.png`, blob);
+      total++;
+    });
+  }
+
+  if (total === 0) {
+    showToast('还没有图片，先拖入再导出');
+    return;
+  }
+
+  try {
+    const content = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(content);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `返图_${new Date().toISOString().slice(0, 10)}.zip`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`已导出 ${total} 张图片`);
+  } catch(e) {
+    showToast('导出失败：' + e.message);
+  }
+}
+
+// ============ SAVE / LOAD ============
+function autoSave() {
+  try {
+    localStorage.setItem('返图工具_state', JSON.stringify({
+      version: 2,
+      imageStore,
+      customItems
+    }));
+  } catch(e) {}
+}
+
+function loadFromLocalStorage() {
+  try {
+    const saved = localStorage.getItem('返图工具_state') || localStorage.getItem('返图工具_images');
+    if (!saved) return;
+    hydrateState(JSON.parse(saved));
+  } catch(_) {}
+}
+
+function saveToDisk() {
+  try {
+    const json = JSON.stringify({
+      version: 2,
+      imageStore,
+      customItems
+    });
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `返图进度_${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('进度已保存到文件');
+  } catch(e) {
+    showToast('保存失败：' + e.message);
+  }
+}
+
+function loadFromDisk() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        hydrateState(JSON.parse(ev.target.result));
+        autoSave();
+        showToast('已导入存档');
+      } catch(_) {
+        showToast('存档格式错误');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+// ============ UTILS ============
+function itemKey(id) {
+  return `custom_${id}`;
+}
+
+function getDisplayName(key) {
+  if (key.startsWith('custom_')) {
+    const id = key.replace('custom_', '');
+    const item = customItems.find(entry => String(entry.id) === id);
+    return (item && item.name) ? item.name : '未命名自定义图';
+  }
+  const [si, ri] = key.split('_').map(Number);
+  return DATA[sectionKeys[si]][ri];
+}
+
+function sanitizeFileName(name) {
+  return (name || '未命名').replace(/[\/\\?%*:|"<>]/g, '_');
+}
+
+function escapeHtml(text) {
+  return String(text || '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function dataURLToBlob(dataURL) {
+  const parts = dataURL.split(',');
+  const mime = parts[0].match(/:(.*?);/)[1];
+  const bstr = atob(parts[1]);
+  const n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
+  return new Blob([u8arr], { type: mime });
+}
+
+function rerenderCardGroupByKey(key) {
+  if (key.startsWith('custom_')) {
+    renderCustomSection();
+    return;
+  }
+  const si = parseInt(key.split('_')[0], 10);
+  reRenderSection(si);
+}
+
+function reRenderSection(si) {
+  const container = document.getElementById('sectionContainer');
+  const section = container.querySelector(`.section[data-section-idx="${si}"]`);
+  if (!section) return;
+  const items = DATA[sectionKeys[si]];
+  const grid = items.map((name, ri) => renderCard(name, `${si}_${ri}`, ri)).join('');
+  section.innerHTML = `<div class="grid">${grid}</div>`;
+  reBindDragEvents();
+  updateActiveCardUI();
+}
+
+function reRenderAll() {
+  sectionKeys.forEach((_, i) => reRenderSection(i));
+  renderCustomSection();
+}
+
+function updateStats() {
+  const fixedTotal = Object.keys(DATA).reduce((sum, k) => sum + DATA[k].length, 0);
+  const total = fixedTotal + customItems.length;
+  const filled = Object.keys(imageStore).filter(k => isValidKey(k)).length;
+  const bar = document.getElementById('statsBar');
+  bar.innerHTML = `
+    <span><span class="dot dot-done"></span> 已拍 ${filled}</span>
+    <span><span class="dot dot-empty"></span> 未拍 ${total - filled}</span>
+    <span>固定资源位 ${fixedTotal} 个</span>
+    <span>自定义 ${customItems.length} 个</span>
+    <span>总计 ${total} 个框</span>
+  `;
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+function isValidKey(key) {
+  if (key.startsWith('custom_')) {
+    const id = key.replace('custom_', '');
+    return customItems.some(item => String(item.id) === id);
+  }
+  const [si, ri] = key.split('_').map(Number);
+  return si < sectionKeys.length && !!DATA[sectionKeys[si]] && ri < DATA[sectionKeys[si]].length;
+}
+
+function setActiveCard(key) {
+  activeCardKey = key;
+  updateActiveCardUI();
+}
+
+function updateActiveCardUI() {
+  document.querySelectorAll('.card').forEach(card => {
+    card.classList.toggle('is-active', card.dataset.key === activeCardKey);
+  });
+}
+
+function addCustomItem() {
+  const id = Date.now();
+  customItems.push({
+    id,
+    name: `自定义图 ${customItems.length + 1}`
+  });
+  renderCustomSection();
+  updateStats();
+  autoSave();
+  const key = itemKey(id);
+  setActiveCard(key);
+  requestAnimationFrame(() => {
+    const input = document.querySelector(`.card[data-key="${key}"] .custom-name-input`);
+    if (input) {
+      input.focus();
+      input.select();
+    }
+  });
+}
+
+function updateCustomName(key, value) {
+  const id = key.replace('custom_', '');
+  const item = customItems.find(entry => String(entry.id) === id);
+  if (!item) return;
+  item.name = value.trimStart();
+  const card = document.querySelector(`.card[data-key="${key}"]`);
+  if (card) {
+    card.dataset.name = item.name;
+    const downloadLink = card.querySelector('.card-hover-actions a[download]');
+    if (downloadLink) {
+      downloadLink.download = `${sanitizeFileName(item.name || '未命名')}.png`;
+    }
+  }
+  autoSave();
+}
+
+function removeCustomItem(key) {
+  const name = getDisplayName(key);
+  if (!confirm(`确认删除自定义框“${name}”？`)) return;
+  const id = key.replace('custom_', '');
+  customItems = customItems.filter(item => String(item.id) !== id);
+  delete imageStore[key];
+  if (activeCardKey === key) activeCardKey = null;
+  renderCustomSection();
+  updateStats();
+  autoSave();
+}
+
+function hydrateState(data) {
+  if (data && data.version === 2) {
+    imageStore = data.imageStore || {};
+    customItems = Array.isArray(data.customItems) ? data.customItems : [];
+  } else {
+    imageStore = data || {};
+    customItems = [];
+  }
+  reRenderAll();
+  updateStats();
+}
+
+async function extractImageFromDataTransfer(dataTransfer) {
+  if (!dataTransfer) return null;
+
+  if (dataTransfer.files && dataTransfer.files.length) {
+    const imageFile = Array.from(dataTransfer.files).find(file => file.type && file.type.startsWith('image/'));
+    if (imageFile) return { file: imageFile };
+  }
+
+  if (dataTransfer.items && dataTransfer.items.length) {
+    for (const item of Array.from(dataTransfer.items)) {
+      if (item.kind === 'file' && item.type && item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) return { file };
+      }
+    }
+  }
+
+  const html = dataTransfer.getData('text/html');
+  if (html) {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const img = doc.querySelector('img');
+    if (img && img.src) {
+      if (img.src.startsWith('data:image/')) return { dataUrl: img.src };
+      const fetched = await tryFetchImageAsDataUrl(img.src);
+      if (fetched) return { dataUrl: fetched };
+    }
+  }
+
+  const uri = dataTransfer.getData('text/uri-list') || dataTransfer.getData('text/plain');
+  if (uri && uri.startsWith('data:image/')) {
+    return { dataUrl: uri };
+  }
+
+  return null;
+}
+
+async function tryFetchImageAsDataUrl(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    const blob = await response.blob();
+    if (!blob.type.startsWith('image/')) return null;
+    return await blobToDataUrl(blob);
+  } catch (_) {
+    return null;
+  }
+}
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+function openContextMenu(event, key) {
+  event.preventDefault();
+  setActiveCard(key);
+  const menu = document.getElementById('contextMenu');
+  menu.style.left = `${Math.min(event.clientX, window.innerWidth - 170)}px`;
+  menu.style.top = `${Math.min(event.clientY, window.innerHeight - 120)}px`;
+  menu.classList.add('show');
+}
+
+function hideContextMenu() {
+  document.getElementById('contextMenu').classList.remove('show');
+}
+
+async function copyImage(key) {
+  const img = imageStore[key];
+  if (!img) {
+    showToast('当前框里还没有图片');
+    return;
+  }
+  if (!navigator.clipboard || !navigator.clipboard.write || typeof ClipboardItem === 'undefined') {
+    showToast('当前浏览器不支持复制图片，请尝试拖拽或下载');
+    return;
+  }
+  try {
+    const blob = dataURLToBlob(img);
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        [blob.type || 'image/png']: blob
+      })
+    ]);
+    showImageCopiedFeedback(key);
+    showToast(`已复制图片：${getDisplayName(key)}`);
+  } catch (_) {
+    showToast('复制图片失败，请重试');
+  }
+}
+
+async function pasteImageFromClipboard(key) {
+  if (!key) {
+    showToast('先选中一个框再粘贴');
+    return;
+  }
+  if (!navigator.clipboard || !navigator.clipboard.read) {
+    showToast('当前浏览器不支持直接读取剪贴板，请按 Ctrl/Cmd+V');
+    return;
+  }
+  try {
+    const items = await navigator.clipboard.read();
+    for (const item of items) {
+      const imageType = item.types.find(type => type.startsWith('image/'));
+      if (!imageType) continue;
+      const blob = await item.getType(imageType);
+      const dataUrl = await blobToDataUrl(blob);
+      setImageForKey(key, dataUrl);
+      showToast('已粘贴图片');
+      return;
+    }
+    showToast('剪贴板里没有图片');
+  } catch (_) {
+    showToast('读取剪贴板失败，请直接按 Ctrl/Cmd+V');
+  }
+}
+
+function pasteIntoActiveCard() {
+  hideContextMenu();
+  pasteImageFromClipboard(activeCardKey);
+}
+
+function copyActiveCardImage() {
+  hideContextMenu();
+  if (!activeCardKey) {
+    showToast('先选中一个框');
+    return;
+  }
+  copyImage(activeCardKey);
+}
+
+function pickLocalImageForKey(key) {
+  if (!key) {
+    showToast('先选中一个框');
+    return;
+  }
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = function(e) {
+    const file = e.target.files[0];
+    if (file) handleFileDrop(key, file);
+  };
+  input.click();
+}
+
+function pickImageForActiveCard() {
+  hideContextMenu();
+  pickLocalImageForKey(activeCardKey);
+}
+
+function clearActiveCardImage() {
+  hideContextMenu();
+  if (!activeCardKey) {
+    showToast('先选中一个框');
+    return;
+  }
+  if (imageStore[activeCardKey]) {
+    removeImage(activeCardKey);
+  } else {
+    showToast('当前框里还没有图片');
+  }
+}
+
+document.addEventListener('paste', async function(e) {
+  if (!activeCardKey) return;
+  const imageData = await extractImageFromDataTransfer(e.clipboardData);
+  if (!imageData) return;
+  e.preventDefault();
+  if (imageData.file) {
+    handleFileDrop(activeCardKey, imageData.file);
+  } else if (imageData.dataUrl) {
+    setImageForKey(activeCardKey, imageData.dataUrl);
+  }
+  showToast('已粘贴图片');
+});
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.context-menu')) hideContextMenu();
+});
+
+// Close lightbox on ESC
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeLightbox();
+    hideContextMenu();
+  }
+});
+
+// ============ START ============
+init();
+</script>
+</body>
+</html>
